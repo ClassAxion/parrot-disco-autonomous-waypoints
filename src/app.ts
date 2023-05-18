@@ -2,10 +2,13 @@ import Telemetry from './interface/Telemetry.interface';
 import { io, Socket } from 'socket.io-client';
 import logger from './utils/logger';
 import Algorithm from './module/Algorithm.module';
+import dotenv from 'dotenv';
 
-if (!process.argv[2]) process.exit(1);
+dotenv.config();
 
-const target = process.argv[2];
+const target = process.env.TARGET || process.argv[2];
+
+if (!target) process.exit(1);
 
 let socket: Socket, telemetry: Telemetry, current: Telemetry;
 
@@ -76,7 +79,7 @@ function attachEvents() {
 }
 
 (async () => {
-    logger.info(`Connecting to ${target}`);
+    logger.info(`Connecting...`);
 
     const socket = io(target);
 
