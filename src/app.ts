@@ -10,7 +10,9 @@ const target = process.env.TARGET || process.argv[2];
 
 if (!target) process.exit(1);
 
-let socket: Socket, telemetry: Telemetry, current: Telemetry;
+let socket: Socket,
+    telemetry: Telemetry = {},
+    current: Telemetry = {};
 
 interface Waypoint {
     latitude: number;
@@ -21,29 +23,54 @@ let selected = 0;
 
 const waypoints: Waypoint[] = [
     // https://i.imgur.com/YcUGkxS.png
+    // {
+    //     latitude: 53.35562,
+    //     longitude: 17.6591,
+    // },
+    // {
+    //     latitude: 53.3619,
+    //     longitude: 17.64755,
+    // },
+    // {
+    //     latitude: 53.35738,
+    //     longitude: 17.62547,
+    // },
+    // {
+    //     latitude: 53.33989,
+    //     longitude: 17.61825,
+    // },
+    // {
+    //     latitude: 53.33252,
+    //     longitude: 17.64618,
+    // },
+    // {
+    //     latitude: 53.34049,
+    //     longitude: 17.65853,
+    // },
+    // https://i.imgur.com/Ld0VSbE.png
     {
-        latitude: 53.35562,
-        longitude: 17.6591,
+        latitude: 53.34148,
+        longitude: 17.63857,
     },
     {
-        latitude: 53.3619,
-        longitude: 17.64755,
+        latitude: 53.34015,
+        longitude: 17.65097,
     },
     {
-        latitude: 53.35738,
-        longitude: 17.62547,
+        latitude: 53.34486,
+        longitude: 17.65123,
     },
     {
-        latitude: 53.33989,
-        longitude: 17.61825,
+        latitude: 53.3495,
+        longitude: 17.64522,
     },
     {
-        latitude: 53.33252,
-        longitude: 17.64618,
+        latitude: 53.3495,
+        longitude: 17.64522,
     },
     {
-        latitude: 53.34049,
-        longitude: 17.65853,
+        latitude: 53.35045,
+        longitude: 17.63393,
     },
 ];
 
@@ -81,7 +108,7 @@ function attachEvents() {
 (async () => {
     logger.info(`Connecting...`);
 
-    const socket = io(target);
+    socket = io(target);
 
     await new Promise<void>((r) => socket.once('connect', () => r()));
 
@@ -137,7 +164,7 @@ function attachEvents() {
 
         // console.log(`Roll: ${roll}, Last distance ${distance}m`);
 
-        if (distance < 50 && Date.now() - lastChange > 15 * 1000) {
+        if (distance < 100 && Date.now() - lastChange > 15 * 1000) {
             // if fulfilled, it goes to the next one
 
             console.log(`Waypoint reached.`);
