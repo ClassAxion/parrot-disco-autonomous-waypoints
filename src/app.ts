@@ -3,6 +3,7 @@ import { io, Socket } from 'socket.io-client';
 import logger from './utils/logger';
 import Algorithm from './module/Algorithm.module';
 import dotenv from 'dotenv';
+import { readFile } from 'fs/promises';
 
 dotenv.config();
 
@@ -18,61 +19,6 @@ interface Waypoint {
     latitude: number;
     longitude: number;
 }
-
-let selected = 0;
-
-const waypoints: Waypoint[] = [
-    // https://i.imgur.com/YcUGkxS.png
-    // {
-    //     latitude: 53.35562,
-    //     longitude: 17.6591,
-    // },
-    // {
-    //     latitude: 53.3619,
-    //     longitude: 17.64755,
-    // },
-    // {
-    //     latitude: 53.35738,
-    //     longitude: 17.62547,
-    // },
-    // {
-    //     latitude: 53.33989,
-    //     longitude: 17.61825,
-    // },
-    // {
-    //     latitude: 53.33252,
-    //     longitude: 17.64618,
-    // },
-    // {
-    //     latitude: 53.34049,
-    //     longitude: 17.65853,
-    // },
-    // https://i.imgur.com/Ld0VSbE.png
-    {
-        latitude: 53.34148,
-        longitude: 17.63857,
-    },
-    {
-        latitude: 53.34015,
-        longitude: 17.65097,
-    },
-    {
-        latitude: 53.34486,
-        longitude: 17.65123,
-    },
-    {
-        latitude: 53.3495,
-        longitude: 17.64522,
-    },
-    {
-        latitude: 53.3495,
-        longitude: 17.64522,
-    },
-    {
-        latitude: 53.35045,
-        longitude: 17.63393,
-    },
-];
 
 function attachEvents() {
     socket.on('altitude', ({ altitude }) => {
@@ -106,6 +52,11 @@ function attachEvents() {
 }
 
 (async () => {
+    // https://i.imgur.com/YcUGkxS.png
+    // https://i.imgur.com/Ld0VSbE.png
+
+    const waypoints: Waypoint[] = JSON.parse(await readFile('./waypoints/big.json', 'utf-8'));
+
     logger.info(`Connecting...`);
 
     socket = io(target);
@@ -131,6 +82,10 @@ function attachEvents() {
 
     let lastRoll: number,
         lastChange = 0;
+
+    let selected = 1;
+
+    const requiredDistance = 125;
 
     while (true) {
         const currentWaypoint = waypoints[selected];
@@ -164,10 +119,10 @@ function attachEvents() {
 
         // console.log(`Roll: ${roll}, Last distance ${distance}m`);
 
-        if (distance < 100 && Date.now() - lastChange > 15 * 1000) {
+        if (distance < requiredDistance && Date.now() - lastChange > 15 * 1000) {
             // if fulfilled, it goes to the next one
 
-            console.log(`Waypoint reached.`);
+            console.log(`Waypoint ${selected + 1} reached.`);
 
             if (++selected === waypoints.length) {
                 selected = 0;
